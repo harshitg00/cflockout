@@ -15,7 +15,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// TODO: @Gautam Add user routes here.
+
+app.use("/api/auth", require("./routes/authRoutes"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
