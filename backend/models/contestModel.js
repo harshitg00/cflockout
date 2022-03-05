@@ -6,6 +6,8 @@ const problemSchema = mongoose.Schema({
   rating: Number,
   points: Number,
   problemId: String,
+  isSolved: Boolean,
+  solvedBy: mongoose.Schema.Types.ObjectId,
 });
 
 const contestantSchema = {
@@ -17,10 +19,16 @@ const contestantSchema = {
 
 const contestSchema = mongoose.Schema(
   {
-    users: {
-      type: [mongoose.Schema.Types.ObjectId],
+    users: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "User",
+      },
+    ],
+    admin: {
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "Users",
     },
     duration: {
       type: Number,
@@ -32,6 +40,10 @@ const contestSchema = mongoose.Schema(
     },
     contestants: {
       type: [contestantSchema],
+      required: true,
+    },
+    isFinished: {
+      type: Boolean,
       required: true,
     },
   },
