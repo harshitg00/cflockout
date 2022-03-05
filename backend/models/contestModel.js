@@ -40,10 +40,12 @@ const contestSchema = mongoose.Schema(
     },
     contestants: {
       type: [contestantSchema],
+      default: [],
       required: true,
     },
     isFinished: {
       type: Boolean,
+      default: false,
       required: true,
     },
   },
