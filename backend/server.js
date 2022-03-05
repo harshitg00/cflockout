@@ -15,8 +15,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-
+// All routes of the app.
 app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/contests", require("./routes/contestRoutes"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
