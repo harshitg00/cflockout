@@ -4,6 +4,7 @@ const MIN_NUMBER_OF_PROBLEMS = 1;
 const MAX_NUMBER_OF_PROBLEMS = 5;
 const MIN_PROBLEM_POINTS = 1;
 const MAX_PROBLEM_POINTS = 100;
+const MAX_PLAYERS = 6;
 
 module.exports = {
   MIN_DURATION,
@@ -12,4 +13,5 @@ module.exports = {
   MAX_NUMBER_OF_PROBLEMS,
   MIN_PROBLEM_POINTS,
   MAX_PROBLEM_POINTS,
+  MAX_PLAYERS,
 };

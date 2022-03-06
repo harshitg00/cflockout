@@ -7,7 +7,7 @@ const problemSchema = mongoose.Schema({
   points: Number,
   problemId: String,
   isSolved: Boolean,
-  solvedBy: mongoose.Schema.Types.ObjectId,
+  solvedBy: String,
 });
 
 const contestantSchema = {
@@ -21,13 +21,13 @@ const contestSchema = mongoose.Schema(
   {
     users: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         required: true,
         ref: "User",
       },
     ],
     admin: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       required: true,
     },
     duration: {

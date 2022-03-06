@@ -14,6 +14,7 @@ const {
   getContests,
   createContest,
   joinContest,
+  solveProblem,
   invalidateContest,
 } = require("../controllers/contestController");
 
@@ -30,12 +31,15 @@ router.route("/create").post(
       min: MIN_NUMBER_OF_PROBLEMS,
       max: MAX_NUMBER_OF_PROBLEMS,
     }),
+
     // Validating contest duration
     body(
       "duration",
       `Contest Duration should be in between ${MIN_DURATION} minutes and ${MAX_DURATION} minutes`
     ).isNumeric({ min: MIN_DURATION, max: MAX_DURATION }),
+
     // Validating points of every problem
+    // TODO: Validate problems array properly.
     body(
       "problems.*.points",
       `Points of each problem should lie between ${MIN_PROBLEM_POINTS} and ${MAX_PROBLEM_POINTS}`
@@ -47,7 +51,18 @@ router.route("/create").post(
   protect,
   createContest
 );
-router.route("/join/:id").put(protect, joinContest);
-router.route("/invalidate/:id").post(protect, invalidateContest);
+
+router.route("/join/:contestId").put(protect, joinContest);
+router
+  .route("/solve/:contestId")
+  .put(
+    [
+      body("problemId", "problemId can't be empty").not().isEmpty(),
+      body("userId", "UserId can't be empty").not().isEmpty(),
+    ],
+    protect,
+    solveProblem
+  );
+router.route("/invalidate/:contestId").post(protect, invalidateContest);
 
 module.exports = router;
