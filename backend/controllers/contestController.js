@@ -170,7 +170,32 @@ const solveProblem = asyncHandler(async (req, res) => {
 });
 
 /** Ends a contest with the given id. */
-const invalidateContest = asyncHandler(async (req, res) => {});
+const invalidateContest = asyncHandler(async (req, res) => {
+  const ongoingContest = await Contest.findById(req.params.contestId);
+
+  if (!ongoingContest) {
+    res.status(404);
+    throw new Error("No contest found!");
+  }
+
+  if (ongoingContest.isFinished) {
+    res.status(408);
+    throw new Error("This contest is already finished!");
+  }
+
+  if (req.user.id !== ongoingContest.admin) {
+    res.status(401);
+    throw new Error("Not authorized for this request.");
+  }
+
+  const invalidatedContest = await Contest.findOneAndUpdate(
+    { _id: req.params.contestId },
+    { isFinished: true },
+    { returnOriginal: false,}
+  );
+
+  res.status(201).json(invalidatedContest);
+});
 
 module.exports = {
   getContests,

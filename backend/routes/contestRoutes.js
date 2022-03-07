@@ -8,6 +8,8 @@ const {
   MAX_DURATION,
   MIN_PROBLEM_POINTS,
   MAX_PROBLEM_POINTS,
+  MAX_PROBLEM_RATING,
+  MIN_PROBLEM_RATING,
 } = require("../config/constants");
 
 const {
@@ -31,15 +33,12 @@ router.route("/create").post(
       min: MIN_NUMBER_OF_PROBLEMS,
       max: MAX_NUMBER_OF_PROBLEMS,
     }),
-
     // Validating contest duration
     body(
       "duration",
       `Contest Duration should be in between ${MIN_DURATION} minutes and ${MAX_DURATION} minutes`
-    ).isNumeric({ min: MIN_DURATION, max: MAX_DURATION }),
-
+    ).isFloat({ min: MIN_DURATION, max: MAX_DURATION }),
     // Validating points of every problem
-    // TODO: Validate problems array properly.
     body(
       "problems.*.points",
       `Points of each problem should lie between ${MIN_PROBLEM_POINTS} and ${MAX_PROBLEM_POINTS}`
@@ -47,6 +46,17 @@ router.route("/create").post(
       min: MIN_PROBLEM_POINTS,
       max: MAX_PROBLEM_POINTS,
     }),
+    // Validating Problem Name
+    body("problems.*.name", "Name of problem should not be empty").notEmpty(),
+    // Validating Problem Link
+    body("problems.*.problemLink", "Problem link is not specified").notEmpty(),
+    // Validating Problem ID
+    body("problems.*.problemId", "Problem ID is not specified").notEmpty(),
+    // Validating Problem Rating
+    body(
+      "problems.*.rating",
+      `Problem rating should lie between ${MIN_PROBLEM_RATING} and ${MAX_PROBLEM_RATING}`
+    ).isFloat({ min: MIN_PROBLEM_RATING, max: MAX_PROBLEM_RATING }),
   ],
   protect,
   createContest
@@ -63,6 +73,6 @@ router
     protect,
     solveProblem
   );
-router.route("/invalidate/:contestId").post(protect, invalidateContest);
+router.route("/invalidate/:contestId").put(protect, invalidateContest);
 
 module.exports = router;
