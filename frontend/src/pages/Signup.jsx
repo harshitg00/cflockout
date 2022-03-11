@@ -10,9 +10,10 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const theme = createTheme();
 
 export default function Signup() {
+  const theme = createTheme();
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -29,7 +30,6 @@ export default function Signup() {
         <CssBaseline />
         <Box
           sx={{
-            marginY: 24,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
