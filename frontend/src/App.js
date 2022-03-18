@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import { Box, CssBaseline } from "@mui/material";
 import CreateContest from "./pages/CreateContest";
+import ContestArena from "./pages/ContestArena";
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/createlockout" element={<CreateContest />} />
+            <Route path="/contest/create" element={<CreateContest />} />
+            <Route path="/contest/arena" element={<ContestArena />} />
           </Routes>
         </Router>
       </Container>

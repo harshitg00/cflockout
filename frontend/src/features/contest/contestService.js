@@ -27,20 +27,26 @@ const getContests = async (token) => {
   return response.data;
 };
 
-// Marks a problem of the contetst solved.
-const solveProblem = async (contestId, token) => {
+// Fetches all contests of a user.
+const getOngoingContest = async (token) => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   };
+  const response = await axios.get(`${API_URL}/ongoing`, config);
 
-  const response = await axios.put(`${API_URL}/solve/${contestId}`, config);
   return response.data;
 };
 
-// Adds a user in the contest.
-const joinContest = async (contestId, text, token) => {
+// Marks a problem of the contetst solved.
+const solveProblem = async (
+  contestId,
+  timeStamp,
+  problemName,
+  username,
+  token
+) => {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -48,8 +54,52 @@ const joinContest = async (contestId, text, token) => {
   };
 
   const response = await axios.put(
-    `${API_URL}/join/${contestId}`,
-    { text },
+    `${API_URL}/solve/${contestId}`,
+    { timeStamp, problemName, username },
+    config
+  );
+  return response.data;
+};
+
+// Adds a user in the contest.
+const joinContest = async (contestId, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const response = await axios.put(`${API_URL}/join/${contestId}`, {}, config);
+  return response.data;
+};
+
+// Adds a user in the contest.
+const invalidateContest = async (contestId, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const response = await axios.put(
+    `${API_URL}/invalidate/${contestId}`,
+    {},
+    config
+  );
+  return response.data;
+};
+
+// Startes a contest.
+const startContest = async (contestId, problems, token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  const response = await axios.put(
+    `${API_URL}/start/${contestId}`,
+    { problems },
     config
   );
   return response.data;
@@ -60,6 +110,9 @@ const contestService = {
   getContests,
   solveProblem,
   joinContest,
+  getOngoingContest,
+  startContest,
+  invalidateContest,
 };
 
 export default contestService;
