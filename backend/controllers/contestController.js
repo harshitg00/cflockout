@@ -14,7 +14,7 @@ const getUpdatedContestantsList = async (
     }
   });
   contestantsList.sort(
-    (contestant1, contestant2) => contestant1.points < contestant2.points
+    (contestant1, contestant2) => contestant1.points > contestant2.points
   );
   let rank = 1;
   for (contestant in contestantsList) {
@@ -191,7 +191,7 @@ const invalidateContest = asyncHandler(async (req, res) => {
   const invalidatedContest = await Contest.findOneAndUpdate(
     { _id: req.params.contestId },
     { isFinished: true },
-    { returnOriginal: false,}
+    { returnOriginal: false }
   );
 
   res.status(201).json(invalidatedContest);
