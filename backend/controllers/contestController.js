@@ -5,11 +5,11 @@ const { MAX_PLAYERS } = require("../config/constants");
 
 const getUpdatedContestantsList = async (
   contestantsList,
-  userId,
+  username,
   pointsAwarded
 ) => {
   contestantsList.forEach((contestant) => {
-    if (contestant.userId === userId) {
+    if (contestant.username === username) {
       contestant.points += pointsAwarded;
     }
   });
@@ -27,6 +27,19 @@ const getUpdatedContestantsList = async (
 const getContests = asyncHandler(async (req, res) => {
   const contests = await Contest.find({ users: req.user.id });
   res.status(200).json(contests);
+});
+
+/** Fetches the ongoing contest related to a user. */
+const getOngoingContest = asyncHandler(async (req, res) => {
+  const contest = await Contest.findOne({
+    user: req.user.id,
+    isFinished: false,
+  });
+  if (!contest) {
+    res.status(404);
+    throw Error("No onoging contests found!");
+  }
+  res.status(200).json(contest);
 });
 
 /** Creates a new contest. */
@@ -47,6 +60,17 @@ const createContest = asyncHandler(async (req, res) => {
       rank: 1,
     },
   ];
+
+  const ongoingContest = await Contest.findOne({
+    user: req.user.id,
+    isFinished: false,
+  });
+
+  if (ongoingContest) {
+    console.log(ongoingContest);
+    res.status(409);
+    throw Error("The user is already participating in a running contest.");
+  }
 
   const contest = await Contest.create({
     users,
@@ -84,6 +108,16 @@ const joinContest = asyncHandler(async (req, res) => {
     throw new Error("Maximum limit of players reached!");
   }
 
+  const alreadyRunningContest = await Contest.findOne({
+    user: req.user.id,
+    isStarted: true,
+  });
+
+  if (alreadyRunningContest) {
+    res.status(409);
+    throw Error("The user is already participating in a running contest.");
+  }
+
   const contestant = {
     username: req.user.username,
     points: 0,
@@ -118,19 +152,16 @@ const solveProblem = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("No contest found!");
   }
+  const contestDuration =
+    ongoingContest.startedAt.getTime() + ongoingContest.duration * 60 * 1000;
 
-  if (ongoingContest.isFinished) {
+  if (ongoingContest.isFinished || req.body.timeStamp > contestDuration) {
     res.status(408);
     throw new Error("This contest is already finished!");
   }
 
-  if (req.user.id !== ongoingContest.admin) {
-    res.status(401);
-    throw new Error("Not authorized for this request.");
-  }
-
   const problems = ongoingContest.problems.filter(
-    (problem) => problem.problemId.toString() === req.body.problemId
+    (problem) => problem.name === req.body.problemName
   );
 
   if (problems.length === 0) {
@@ -147,7 +178,7 @@ const solveProblem = asyncHandler(async (req, res) => {
 
   contestantsList = await getUpdatedContestantsList(
     contestantsList,
-    req.body.userId.toString(),
+    req.body.username,
     problems[0].points
   );
 
@@ -156,17 +187,56 @@ const solveProblem = asyncHandler(async (req, res) => {
     {
       $set: {
         "problems.$[element].isSolved": true,
-        "problems.$[element].solvedBy": req.body.userId.toString(),
+        "problems.$[element].solvedBy": req.body.username,
         contestants: contestantsList,
       },
     },
     {
-      arrayFilters: [{ "element.problemId": req.body.problemId }],
+      arrayFilters: [{ "element.name": req.body.problemName }],
       returnOriginal: false,
     }
   );
 
   res.status(201).json(updatedContest);
+});
+
+/** Starts a contest with the given id. */
+const startContest = asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  const { problems } = req.body;
+
+  const ongoingContest = await Contest.findById(req.params.contestId);
+
+  if (!ongoingContest) {
+    res.status(404);
+    throw new Error("No contest found!");
+  }
+
+  if (ongoingContest.isFinished) {
+    res.status(408);
+    throw new Error("This contest is already finished!");
+  }
+
+  if (ongoingContest.isStarted) {
+    res.status(408);
+    throw new Error("This contest is already started!");
+  }
+
+  if (req.user.id !== ongoingContest.admin) {
+    res.status(401);
+    throw new Error("Not authorized for this request.");
+  }
+
+  const startedContest = await Contest.findOneAndUpdate(
+    { _id: req.params.contestId },
+    { isStarted: true, startedAt: new Date(), problems: problems },
+    { returnOriginal: false }
+  );
+
+  res.status(200).json(startedContest);
 });
 
 /** Ends a contest with the given id. */
@@ -183,10 +253,10 @@ const invalidateContest = asyncHandler(async (req, res) => {
     throw new Error("This contest is already finished!");
   }
 
-  if (req.user.id !== ongoingContest.admin) {
-    res.status(401);
-    throw new Error("Not authorized for this request.");
-  }
+  // if (req.user.id !== ongoingContest.admin) {
+  //   res.status(401);
+  //   throw new Error("Not authorized for this request.");
+  // }
 
   const invalidatedContest = await Contest.findOneAndUpdate(
     { _id: req.params.contestId },
@@ -203,4 +273,6 @@ module.exports = {
   joinContest,
   solveProblem,
   invalidateContest,
+  getOngoingContest,
+  startContest,
 };

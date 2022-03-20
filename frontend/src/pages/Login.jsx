@@ -53,7 +53,6 @@ export default function Login() {
   }, [user, isError, isSuccess, message, navigate, dispatch]);
 
   const onChange = (event) => {
-    console.log(event.target.value);
     setFormData((previousState) => ({
       ...previousState,
       [event.target.name]: event.target.value,

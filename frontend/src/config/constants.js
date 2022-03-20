@@ -1,5 +1,6 @@
 const AUTH_API_URL = "/api/auth";
-const USER_TOKEN_KEY = "cf_lockout_token";
+const CF_API_URL = "https://codeforces.com/api";
+const USER_KEY = "cf_lockout_user";
 const MIN_DURATION = 1;
 const MAX_DURATION = 180;
 const MIN_NUMBER_OF_PROBLEMS = 1;
@@ -11,8 +12,9 @@ const MAX_PROBLEM_RATING = 2500;
 const MIN_PROBLEM_RATING = 800;
 
 module.exports = {
+  CF_API_URL,
   AUTH_API_URL,
-  USER_TOKEN_KEY,
+  USER_KEY,
   MIN_DURATION,
   MAX_DURATION,
   MIN_NUMBER_OF_PROBLEMS,

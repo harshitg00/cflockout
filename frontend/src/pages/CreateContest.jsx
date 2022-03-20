@@ -14,7 +14,7 @@ import {
   MIN_DURATION,
   MAX_DURATION,
 } from "../config/constants";
-import { resetAfterCreateContest, createContest } from "../features/contest/contestSlice";
+import { reset, createContest } from "../features/contest/contestSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -44,9 +44,9 @@ const CreateContest = () => {
     }
     // TODO: Restrict opening this page if a contest is already running.
     if (isSuccess || ongoingContest) {
-      navigate("/");
+      navigate("/contest/arena");
     }
-    dispatch(resetAfterCreateContest());
+    dispatch(reset());
   }, [ongoingContest, isError, isSuccess, message, navigate, dispatch]);
 
   const onChangeProblem = (index) => (e) => {

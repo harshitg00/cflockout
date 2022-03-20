@@ -48,6 +48,12 @@ const contestSchema = mongoose.Schema(
       default: false,
       required: true,
     },
+    isStarted: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    startedAt: Date,
   },
   {
     timestamps: true,

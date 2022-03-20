@@ -32,7 +32,6 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (user) {
     res.status(201).json({
-      status: "success",
       _id: user._id,
       name: user.name,
       email: user.email,
@@ -56,8 +55,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (user && (await bcrypt.compare(password, user.password))) {
     res.status(200).json({
-      status: "success",
-      message: "Login successful.",
       _id: user._id,
       email: user.email,
       name: user.name,

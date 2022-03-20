@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import contestService from "./contestService";
+import dayjs from "dayjs";
 
 const initialState = {
   problems: [],
@@ -17,8 +18,7 @@ export const createContest = createAsyncThunk(
   async (data, thunkAPI) => {
     try {
       console.log("Reached createContest in slice.");
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMjMwYTFjMzVmZDkwZDc5MDA5ZjI3MSIsImlhdCI6MTY0NjU1ODA0OCwiZXhwIjoxNjQ5MTUwMDQ4fQ.B_VRSKE9cC3oDCQVJYflLo8WlE4y-rC9glh3CT-jXH4";
+      const token = thunkAPI.getState().auth.user.token;
       return await contestService.createContest(data, token);
     } catch (error) {
       const message =
@@ -51,16 +51,63 @@ export const getContests = createAsyncThunk(
   }
 );
 
+// Get user's running contest.
+export const getOngoingContest = createAsyncThunk(
+  "contests/ongoing",
+  async (_, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token;
+      const ongoingContest = await contestService.getOngoingContest(token);
+      console.log(ongoingContest, "here");
+      const contestEndTime =
+        new Date(ongoingContest.startedAt).getTime() +
+        ongoingContest.duration * 60 * 1000;
+      const timeStampDayjs = dayjs(contestEndTime);
+      const nowDayjs = dayjs();
+      if (timeStampDayjs.isBefore(nowDayjs)) {
+        console.log("hee");
+        await contestService.invalidateContest(ongoingContest._id, token);
+        return thunkAPI.rejectWithValue("No ongoing contest found!!");
+      }
+      return ongoingContest;
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 // Add a user in the ongoing contest.
 export const joinContest = createAsyncThunk(
   "contests/join",
+  async (contestId, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token;
+      return await contestService.joinContest(contestId, token);
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Starts a contest.
+export const startContest = createAsyncThunk(
+  "contests/start",
   async (data, thunkAPI) => {
     try {
-      console.log("Goal update in contestSlice was called!");
       const token = thunkAPI.getState().auth.user.token;
-      const goal = await contestService.joinContest(data.id, data.text, token);
-      console.log(goal);
-      return goal;
+      return await contestService.startContest(data.id, data.problems, token);
     } catch (error) {
       const message =
         (error.response &&
@@ -78,11 +125,16 @@ export const solveProblem = createAsyncThunk(
   "contests/solve",
   async (data, thunkAPI) => {
     try {
-      console.log("Goal update in contestSlice was called!");
       const token = thunkAPI.getState().auth.user.token;
-      const goal = await contestService.solveProblem(data.id, data.text, token);
-      console.log(goal);
-      return goal;
+      console.log("data", data);
+      const contest = await contestService.solveProblem(
+        data.contestId,
+        data.timeStamp,
+        data.problemName,
+        data.username,
+        token
+      );
+      return contest;
     } catch (error) {
       const message =
         (error.response &&
@@ -119,6 +171,58 @@ export const contestSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
+      })
+      .addCase(getOngoingContest.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getOngoingContest.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.ongoingContest = action.payload;
+      })
+      .addCase(getOngoingContest.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(startContest.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(startContest.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.ongoingContest = action.payload;
+      })
+      .addCase(startContest.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(solveProblem.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(solveProblem.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.ongoingContest = action.payload;
+      })
+      .addCase(solveProblem.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(joinContest.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(joinContest.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.ongoingContest = action.payload;
+      })
+      .addCase(joinContest.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
       });
     // .addCase(getContests.pending, (state) => {
     //   state.isLoading = true;
@@ -133,32 +237,6 @@ export const contestSlice = createSlice({
     //   state.isError = true;
     //   state.message = action.payload;
     // })
-    // .addCase(solveProblem.pending, (state) => {
-    //   state.isLoading = true;
-    // })
-    // .addCase(solveProblem.fulfilled, (state, action) => {
-    //   state.isLoading = false;
-    //   state.isSuccess = true;
-    //   state.ongoingContest = action.payload;
-    // })
-    // .addCase(solveProblem.rejected, (state, action) => {
-    //   state.isLoading = false;
-    //   state.isError = true;
-    //   state.message = action.payload;
-    // })
-    // .addCase(joinContest.pending, (state) => {
-    //   state.isLoading = true;
-    // })
-    // .addCase(joinContest.fulfilled, (state, action) => {
-    //   state.isLoading = false;
-    //   state.isSuccess = true;
-    //   state.ongoingContest = action.payload;
-    // })
-    // .addCase(joinContest.rejected, (state, action) => {
-    //   state.isLoading = false;
-    //   state.isError = true;
-    //   state.message = action.payload;
-    // });
   },
 });
 
