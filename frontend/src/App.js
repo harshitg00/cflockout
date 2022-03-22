@@ -6,7 +6,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
-import { Box, CssBaseline } from "@mui/material";
+import { CssBaseline } from "@mui/material";
 import CreateContest from "./pages/CreateContest";
 import ContestArena from "./pages/ContestArena";
 import { socket, SocketContext } from "./context/socket";

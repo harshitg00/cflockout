@@ -6,6 +6,7 @@ const { createServer } = require("http");
 const { Server } = require("socket.io");
 const port = process.env.PORT || 5000;
 const { errorHandler } = require("./middleware/errorMiddleware");
+const path = require("path");
 
 // Connect to MonogoDB.
 connectDb();
@@ -41,6 +42,20 @@ app.use(express.urlencoded({ extended: false }));
 // All routes of the app.
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/contests", require("./routes/contestRoutes"));
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(
+      path.resolve(__dirname, "../", "frontend", "build", "index.html")
+    )
+  );
+} else {
+  app.get("/", (req, res) =>
+    res.send("This is dev server. Please set NODE_ENV to production.")
+  );
+}
 
 // Middleware to handle custom errors in `production` and
 // `development` server.
