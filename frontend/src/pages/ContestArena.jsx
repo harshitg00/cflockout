@@ -1,5 +1,5 @@
 import { Container, Grid, Button } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PlayerItem from "../components/PlayerItem";
 import ProblemItem from "../components/ProblemItem";
@@ -11,13 +11,20 @@ import {
   solveProblem,
   startContest,
 } from "../features/contest/contestSlice";
+import { useSearchParams } from "react-router-dom";
+import { SocketContext } from "../context/socket";
+
 
 const ContestArena = () => {
   const dispatch = useDispatch();
-  const { ongoingContest, isSuccess, isError, isLoading, message } =
+  const [searchParams] = useSearchParams();
+  const roomId = searchParams.get("contestId");
+  const socket = useContext(SocketContext);
+
+  const { ongoingContest, isSuccess, isError, isLoading, message, update } =
     useSelector((state) => state.contest);
-  
-  const {user} = useSelector((state) => state.auth)
+
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (isError) {
@@ -25,6 +32,31 @@ const ContestArena = () => {
     }
     dispatch(getOngoingContest());
   }, [isError, message, dispatch]);
+
+  useEffect(() => {
+    socket.emit("joinRoom", roomId);
+
+    return () => {
+      socket.emit('leaveRoom', roomId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (update) {
+      console.log(`The update number is ${update}`);
+      socket.emit("updateContest", roomId);
+    }
+  }, [socket, update, roomId]);
+
+  useEffect(() => {
+    socket.on("contestUpdated", (roomId) => {
+      console.log("contestUpdated was emitted!", roomId);
+      dispatch(getOngoingContest());
+    });
+    return () => {
+      socket.off("contestUpdated");
+    };
+  }, []);
 
   if (isLoading) {
     return <></>;
@@ -113,11 +145,12 @@ const ContestArena = () => {
             return <ProblemItem key={problem.name} problem={problem} />;
           })}
         </Grid>
-      ) : (
-        user && ongoingContest.admin === user._id ? 
+      ) : user && ongoingContest.admin === user._id ? (
         <Button variant="outlined" onClick={handleStartContest}>
           Start Contest
-        </Button> : <></>
+        </Button>
+      ) : (
+        <></>
       )}
       <h3>Room Code</h3>
       <h4>{ongoingContest._id}</h4>

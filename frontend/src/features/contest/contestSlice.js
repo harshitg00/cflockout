@@ -9,6 +9,7 @@ const initialState = {
   isError: false,
   isSuccess: false,
   isLoading: false,
+  update: 0,
   message: "",
 };
 
@@ -58,7 +59,6 @@ export const getOngoingContest = createAsyncThunk(
     try {
       const token = thunkAPI.getState().auth.user.token;
       const ongoingContest = await contestService.getOngoingContest(token);
-      console.log(ongoingContest, "here");
       const contestEndTime =
         new Date(ongoingContest.startedAt).getTime() +
         ongoingContest.duration * 60 * 1000;
@@ -192,6 +192,7 @@ export const contestSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.ongoingContest = action.payload;
+        state.update = state.update + 1;
       })
       .addCase(startContest.rejected, (state, action) => {
         state.isLoading = false;
@@ -205,6 +206,7 @@ export const contestSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.ongoingContest = action.payload;
+        state.update = state.update + 1;
       })
       .addCase(solveProblem.rejected, (state, action) => {
         state.isLoading = false;
@@ -218,6 +220,7 @@ export const contestSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.ongoingContest = action.payload;
+        state.update = state.update + 1;
       })
       .addCase(joinContest.rejected, (state, action) => {
         state.isLoading = false;

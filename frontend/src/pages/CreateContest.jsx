@@ -44,7 +44,7 @@ const CreateContest = () => {
     }
     // TODO: Restrict opening this page if a contest is already running.
     if (isSuccess || ongoingContest) {
-      navigate("/contest/arena");
+      navigate(`/contest/arena?contestId=${ongoingContest._id}`);
     }
     dispatch(reset());
   }, [ongoingContest, isError, isSuccess, message, navigate, dispatch]);
@@ -87,7 +87,6 @@ const CreateContest = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log("Submit button is clicked!!");
     dispatch(
       createContest({
         duration,

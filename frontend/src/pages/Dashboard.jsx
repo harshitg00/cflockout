@@ -1,36 +1,46 @@
 import {
-  Box,
   Button,
   Container,
-  CssBaseline,
   Grid,
   Paper,
   TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { joinContest } from "../features/contest/contestSlice";
+import { SocketContext } from "../context/socket";
 
 const Dashboard = () => {
   const [contestId, setContestId] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const socket = useContext(SocketContext);
 
-  const { ongoingContest, isError, isSuccess, message } = useSelector(
+  const { ongoingContest, isError, isSuccess, message, update } = useSelector(
     (state) => state.contest
   );
 
   const handleJoinRoom = () => {
     dispatch(joinContest(contestId));
+    socket.emit("joinRoom", contestId);
   };
+
+  useEffect(() => {
+    if(update && contestId) {
+      console.log(`This is udpate - ${update}`)
+      socket.emit("updateContest", contestId);
+    }
+  }, [update, socket, contestId])
+
 
   useEffect(() => {
     if (isError) {
       console.log(message);
     }
     if (isSuccess || ongoingContest) {
-      navigate("/contest/arena");
+      socket.emit('leaveRoom', ongoingContest._id);
+      navigate(`/contest/arena?contestId=${ongoingContest._id}`);
     }
   }, [ongoingContest, isSuccess, isError, message, navigate]);
 

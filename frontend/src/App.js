@@ -9,10 +9,11 @@ import Dashboard from "./pages/Dashboard";
 import { Box, CssBaseline } from "@mui/material";
 import CreateContest from "./pages/CreateContest";
 import ContestArena from "./pages/ContestArena";
+import { socket, SocketContext } from "./context/socket";
 
 function App() {
   return (
-    <>
+    <SocketContext.Provider value={socket}>
       <CssBaseline />
       <NavBar />
       <Container maxWidth="sm" sx={{ padding: 8 }}>
@@ -27,7 +28,7 @@ function App() {
           </Routes>
         </Router>
       </Container>
-    </>
+    </SocketContext.Provider>
   );
 }
 

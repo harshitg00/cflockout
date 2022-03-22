@@ -111,6 +111,7 @@ const joinContest = asyncHandler(async (req, res) => {
   const alreadyRunningContest = await Contest.findOne({
     user: req.user.id,
     isStarted: true,
+    isFinished: false,
   });
 
   if (alreadyRunningContest) {
