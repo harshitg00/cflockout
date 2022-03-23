@@ -11,11 +11,19 @@ import {
 } from "@mui/material";
 import { useSelector } from "react-redux";
 import DrawerComp from "./Drawer";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ProfileAvatar from "./ProfileAvatar";
 
 const NavBar = () => {
-  const [value, setValue] = useState(0);
+  const location = useLocation();
+
+  let defaultValue = 0;
+
+  if (location.pathname === "/") defaultValue = 0;
+  else if (location.pathname === "/dashboard") defaultValue = 1;
+  else defaultValue = 1;
+
+  const [value, setValue] = useState(defaultValue);
   const theme = useTheme();
   const isMatch = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -59,12 +67,12 @@ const NavBar = () => {
                 indicatorColor="secondary"
                 textColor="inherit"
                 value={value}
-                onChange={(e, value) => setValue(value)}
               >
                 <Tab
                   label="Home"
                   onClick={() => {
                     navigate("/");
+                    setValue(0);
                   }}
                 />
                 <Tab
@@ -72,6 +80,7 @@ const NavBar = () => {
                   onClick={() => {
                     if (user) {
                       navigate("/dashboard");
+                      setValue(1);
                     } else {
                       navigate("/login");
                       setValue(0);
@@ -83,6 +92,7 @@ const NavBar = () => {
                   onClick={() => {
                     if (user) {
                       navigate("/");
+                      setValue(2);
                     } else {
                       navigate("/login");
                       setValue(0);
