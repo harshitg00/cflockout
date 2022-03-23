@@ -18,7 +18,6 @@ export const createContest = createAsyncThunk(
   "contests/create",
   async (data, thunkAPI) => {
     try {
-      console.log("Reached createContest in slice.");
       const token = thunkAPI.getState().auth.user.token;
       return await contestService.createContest(data, token);
     } catch (error) {

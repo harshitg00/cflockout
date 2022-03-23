@@ -1,6 +1,6 @@
 import React from "react";
 import Container from "@mui/material/Container";
-import NavBar from "./components/NavBar";
+import NavBar from "./components/Navbar/NavBar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -15,9 +15,11 @@ function App() {
   return (
     <SocketContext.Provider value={socket}>
       <CssBaseline />
-      <NavBar />
-      <Container maxWidth="sm" sx={{ padding: 8 }}>
-        <Router>
+      <Router>
+        <div>
+          <NavBar />
+        </div>
+        <Container maxWidth="sm" sx={{ padding: 8 }}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -26,8 +28,8 @@ function App() {
             <Route path="/contest/create" element={<CreateContest />} />
             <Route path="/contest/arena" element={<ContestArena />} />
           </Routes>
-        </Router>
-      </Container>
+        </Container>
+      </Router>
     </SocketContext.Provider>
   );
 }

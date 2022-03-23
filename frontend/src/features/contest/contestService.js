@@ -9,9 +9,7 @@ const createContest = async (contestData, token) => {
       Authorization: `Bearer ${token}`,
     },
   };
-
   const response = await axios.post(`${API_URL}/create`, contestData, config);
-
   return response.data;
 };
 
