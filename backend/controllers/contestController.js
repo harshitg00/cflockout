@@ -25,14 +25,14 @@ const getUpdatedContestantsList = async (
 
 /** Fetches all contests related to a user. */
 const getContests = asyncHandler(async (req, res) => {
-  const contests = await Contest.find({ users: req.user.id });
+  const contests = await Contest.find({ users: req.user._id });
   res.status(200).json(contests);
 });
 
 /** Fetches the ongoing contest related to a user. */
 const getOngoingContest = asyncHandler(async (req, res) => {
   const contest = await Contest.findOne({
-    users: req.user.id,
+    users: req.user._id,
     isFinished: false,
   });
   if (!contest) {
@@ -62,7 +62,7 @@ const createContest = asyncHandler(async (req, res) => {
   ];
 
   const ongoingContest = await Contest.findOne({
-    users: req.user.id,
+    users: req.user._id,
     isFinished: false,
   });
 
@@ -109,7 +109,7 @@ const joinContest = asyncHandler(async (req, res) => {
   }
 
   const alreadyRunningContest = await Contest.findOne({
-    users: req.user.id,
+    users: req.user._id,
     isStarted: true,
     isFinished: false,
   });
@@ -129,7 +129,7 @@ const joinContest = asyncHandler(async (req, res) => {
   const updatedContest = await Contest.findOneAndUpdate(
     { _id: req.params.contestId },
     {
-      $addToSet: { contestants: contestant, users: req.user.id },
+      $addToSet: { contestants: contestant, users: req.user._id },
     },
     { returnOriginal: false }
   );
