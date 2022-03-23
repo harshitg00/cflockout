@@ -32,7 +32,7 @@ const getContests = asyncHandler(async (req, res) => {
 /** Fetches the ongoing contest related to a user. */
 const getOngoingContest = asyncHandler(async (req, res) => {
   const contest = await Contest.findOne({
-    user: req.user.id,
+    users: req.user.id,
     isFinished: false,
   });
   if (!contest) {
@@ -62,7 +62,7 @@ const createContest = asyncHandler(async (req, res) => {
   ];
 
   const ongoingContest = await Contest.findOne({
-    user: req.user.id,
+    users: req.user.id,
     isFinished: false,
   });
 
@@ -109,7 +109,7 @@ const joinContest = asyncHandler(async (req, res) => {
   }
 
   const alreadyRunningContest = await Contest.findOne({
-    user: req.user.id,
+    users: req.user.id,
     isStarted: true,
     isFinished: false,
   });
