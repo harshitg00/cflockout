@@ -1,3 +1,7 @@
 * {
   font-family: "Roboto";
 }
+
+.svg_icons {
+  transform: scale(1.5);
+}
