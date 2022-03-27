@@ -1,4 +1,12 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
+## CfLockOut
+
+A web app to practice Codeforces Problems with friends in a Lockout contest format.
+
+# How to use?
+
+1. Go to www.cflockout.herokuapp.com.
+2. Make a new account or login to an existing account.
+3. TBD...
 
 ## Installation
 
