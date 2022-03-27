@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 const pages = ["Home", "Dashboard", "My Contests"];
+
 const DrawerComp = (props) => {
   const [openDrawer, setOpenDrawer] = useState(false);
 

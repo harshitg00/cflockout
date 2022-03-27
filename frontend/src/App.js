@@ -19,7 +19,7 @@ function App() {
         <div>
           <NavBar />
         </div>
-        <Container maxWidth="sm" sx={{ padding: 8 }}>
+        <Container maxWidth="md" sx={{ padding: 8 }}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
